@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Простий нотатник</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    #notes-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    .note {
+        margin-bottom: 10px;
+    }
+    .note button {
+        margin-left: 10px;
+    }
+</style>
+</head>
+<body>
+<div id="notes-container">
+    <h2>Нотатки</h2>
+    <input type="text" id="note-input" placeholder="Введіть нову нотатку">
+    <button onclick="addNote()">Додати нотатку</button>
+    <ul id="note-list"></ul>
+</div>
+
+<script>
+    // При завантаженні сторінки завантажуємо нотатки з LocalStorage
+    window.onload = function() {
+        loadNotes();
+    };
+
+    function addNote() {
+        var noteInput = document.getElementById('note-input');
+        var noteText = noteInput.value.trim();
+        if (noteText !== '') {
+            var notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notes.push(noteText);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            noteInput.value = '';
+            loadNotes();
+        }
+    }
+
+    function deleteNote(index) {
+        var notes = JSON.parse(localStorage.getItem('notes')) || [];
+        notes.splice(index, 1);
+        localStorage.setItem('notes', JSON.stringify(notes));
+        loadNotes();
+    }
+
+    function editNote(index) {
+        var notes = JSON.parse(localStorage.getItem('notes')) || [];
+        var newText = prompt('Редагувати нотатку:', notes[index]);
+        if (newText !== null) {
+            notes[index] = newText.trim();
+            localStorage.setItem('notes', JSON.stringify(notes));
+            loadNotes();
+        }
+    }
+
+    function loadNotes() {
+        var notes = JSON.parse(localStorage.getItem('notes')) || [];
+        var noteList = document.getElementById('note-list');
+        noteList.innerHTML = '';
+        notes.forEach(function(note, index) {
+            var li = document.createElement('li');
+            li.textContent = note;
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Видалити';
+            deleteButton.onclick = function() {
+                deleteNote(index);
+            };
+            var editButton = document.createElement('button');
+            editButton.textContent = 'Редагувати';
+            editButton.onclick = function() {
+                editNote(index);
+            };
+            li.appendChild(deleteButton);
+            li.appendChild(editButton);
+            noteList.appendChild(li);
+        });
+    }
+</script>
+</body>
+</html>
